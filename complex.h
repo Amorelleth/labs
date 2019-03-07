@@ -2,24 +2,24 @@
 #define COMPLEX
 
 typedef struct Complex {
-    int re;
-    int im;
+    float re;
+    float im;
 } Complex;
 
-Complex* NewComplex(int re, int im) { 
-    Complex* c = (Complex*)malloc(sizeof(Complex));
-    c->re = re;
-    c->im = im;
+Complex* NewComplex(float re, float im) { 
+    Complex* cmpl = (Complex*)malloc(sizeof(Complex));
+    cmpl->re = re;
+    cmpl->im = im;
 
-    return c;
+    return cmpl;
 }
 
-Complex SumComplex(const Complex c1, const Complex c2) {
-    return *NewComplex(c1.re + c2.re, c1.im + c2.im);
+Complex SumComplex(const Complex cmpl1, const Complex cmpl2) {
+    return *NewComplex(cmpl1.re + cmpl2.re, cmpl1.im + cmpl2.im);
 }
 
-Complex MulComplex(const Complex c1, const Complex c2) {
-    return *NewComplex(c1.re*c2.re - c1.im*c2.im, c1.re*c2.im + c1.im*c2.re);
+Complex MulComplex(const Complex cmpl1, const Complex cmpl2) {
+    return *NewComplex(cmpl1.re*cmpl2.re - cmpl1.im*cmpl2.im, cmpl1.re*cmpl2.im + cmpl1.im*cmpl2.re);
 }
 
 #endif
