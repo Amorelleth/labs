@@ -3,7 +3,7 @@
 #include "complex.h"
 
 #ifndef MATH_FUNCTIONS
-#define MATH_FUNCTIONS
+#define MATH_FUNCTIONS 
 
 void* SumInts(const void* num1, const void* num2) {
     int int1 = *((int*)num1);
@@ -64,12 +64,12 @@ void PrintInts(const void* val) {
 }
 
 void PrintFloats(const void* val) {
-    printf(".2%f", *(float*)val);
+    printf("%.2f", *(float*)val);
 }
 
 void PrintComplex(const void* val) {
     Complex* cmplx = (Complex*)val;
-    printf("%.2f %s %.2f*i", cmplx->re, cmplx->im > 0.0 ? "+" : "-", cmplx->im);
+    printf("%.2f%s%.2fi", cmplx->re, cmplx->im >= 0.0 ? "+" : "" , cmplx->im);
 }
 
 #endif

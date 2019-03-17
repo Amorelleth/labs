@@ -1,31 +1,49 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
-
+#include <time.h>
 #include "matrix.h"
 #include "complex.h"
 #include "test.h"
 #include "functions.h"
 
-#ifndef UINT16
-#define UINT16
-typedef unsigned short int uint16;
-#endif
+#define MAX_RAND 100
 
-// Матричное сложение и умножение, умножение на скаляр, прибавление к строке линейной комбинации других строк
+void getInt(int* num) {
+    int res;
+    do {
+        res = scanf("%d", num);
+        while(getchar() != '\n') continue;
+        if(res != 1) printf("%s","Введите целое число\n");
+    } while(res != 1);
+}
 
-Matrix* initMatrix(uint16 size, int type) {
+void getFloat(float* num) {
+    int res;
+    do {
+        res = scanf("%f", num);
+        while(getchar() != '\n') continue;
+        if(res != 1) printf("%s","Введите число\n");
+    } while(res != 1);
+}
+
+Matrix* initMatrix(int size, int type, bool random) {
+    srand(time(NULL));
     void*** mtrx;
+
     switch(type) {
         case 1: {
             int*** m = (int***)malloc(size * sizeof(int**));
-            for (uint16 i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 m[i] = (int**)malloc(size * sizeof(int*));
-                for (uint16 j = 0; j < size; j++) {
+                for (int j = 0; j < size; j++) {
                     m[i][j] = (int*)malloc(sizeof(int));
+                    if (random) {
+                        *m[i][j] = rand() % 2 == 1 ? rand() % MAX_RAND : -rand() % MAX_RAND;
+                        continue;
+                    }
                     printf("element[%d][%d]: ", i, j);
-                    scanf("%d", m[i][j]);
+                    getInt(m[i][j]);
                 }
             }
             mtrx = (void***)m;
@@ -33,12 +51,16 @@ Matrix* initMatrix(uint16 size, int type) {
         }
         case 2: {
             float*** m = (float***)malloc(size * sizeof(float**));
-            for (uint16 i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 m[i] = (float**)malloc(size * sizeof(float*));
-                for (uint16 j = 0; j < size; j++) {
+                for (int j = 0; j < size; j++) {
                     m[i][j] = (float*)malloc(sizeof(float));
+                    if (random) {
+                        *m[i][j] = (float)(rand() % 2 == 1 ? rand() % MAX_RAND : -rand() % MAX_RAND);
+                        continue;
+                    }
                     printf("element[%d][%d]: ", i, j);
-                    scanf("%f", m[i][j]);
+                    getFloat(m[i][j]);
                 }
             }
             mtrx = (void***)m;
@@ -46,15 +68,20 @@ Matrix* initMatrix(uint16 size, int type) {
         }
         case 3: {
             Complex*** m = (Complex***)malloc(size * sizeof(Complex**));
-            for (uint16 i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 m[i] = (Complex**)malloc(size * sizeof(Complex*));
-                for (uint16 j = 0; j < size; j++) {
+                for (int j = 0; j < size; j++) {
                     m[i][j] = (Complex*)malloc(sizeof(Complex));
-                    int re, im;
-                    printf("Re(element[%d][%d]): ", i, j);
-                    scanf("%d", &re);
-                    printf("Im(element[%d][%d]): ", i, j);
-                    scanf("%d", &im);
+                    float re, im;
+                    if (random) {
+                        re = (float)(rand() % 2 == 1 ? rand() % MAX_RAND : -rand() % MAX_RAND);
+                        im = (float)(rand() % 2 == 1 ? rand() % MAX_RAND : -rand() % MAX_RAND);
+                    } else {
+                        printf("Re(element[%d][%d]): ", i, j);
+                        getFloat(&re);
+                        printf("Im(element[%d][%d]): ", i, j);
+                        getFloat(&im);
+                    }
                     m[i][j] = NewComplex(re, im);
                 }
             }
@@ -95,56 +122,112 @@ void* GetMulFunction(int type) {
 
 void runTests() {
     testIntsMatrix();
+    testFloatsMatrix();
+    testComplexMatrix();
 }
 
 int main(void) {
     runTests();
 
-    int type;
+    int type, size, start, action;
     Matrix* Neo;
     Matrix* Morpheus;
 
-    printf("Выберите тип данных (int - '1', float - '2', complex - '3'): ");
-    while (true) {
-        if (scanf("%d", &type) == 1) {
-            if (type == 1 || type == 2 || type == 3) {
-                uint16 size;
-                printf("Введите размер матрицы: ");
-                scanf("%hu", &size);
+    do {
+        printf("Выберите тип данных (int - 1, float - 2, complex - 3): ");
+        getInt(&type);
+    } while (type != 1 & type != 2 && type != 3);
+    do {
+        printf("Введите размер матрицы (>0): ");
+        getInt(&size);
+    } while (size <= 0);
+    do {
+        printf("1 - ввести значения, 2 - случайная матрица: \n");
+        getInt(&start);
+    } while (start != 1 & start != 2);
 
-                printf("Введите элементы первой матрицы:\n\n");
-                Neo = initMatrix(size, type);
-                printf("\nВведите элементы второй матрицы:\n\n");
-                Morpheus = initMatrix(size, type);
-                
-                // printf("\nВведите коэффициент умножения первой матрицы:\n\n");
-                // scanf(c);
+    if (start == 1) printf("Введите элементы первой матрицы:\n\n");
+    Neo = initMatrix(size, type, start == 2);
+    if (start == 1) printf("\nВведите элементы второй матрицы:\n\n");
+    Morpheus = initMatrix(size, type, start == 2);
+   
+    do {
+        printf("\n1 - сложить, 2 - умножить, 3 - умножить на число, 0 - завершить программу\n");
+        getInt(&action);
+    } while (!(action == 1 || action == 2 || action == 3 || action == 0));
 
-                const void* PrintType = Print(type);
-                const void* SumType = GetSumFunction(type);
-                const void* MulType = GetMulFunction(type);
-                Matrix* Sum = SumMatrix(Neo, Morpheus, SumType);
-                Matrix* Mul = MulMatrix(Neo, Morpheus, SumType, MulType);
-                // Matrix* MulByC = MulByConst(Neo, MulType, (void*)&c);
+    const void* PrintType = Print(type);
+    const void* SumType = GetSumFunction(type);
+    const void* MulType = GetMulFunction(type);
 
-                printf("\nМатрица 1:\n");
-                PrintMatrix(Neo, PrintType);
-                printf("\n\nМатрица 2:\n");
-                PrintMatrix(Morpheus, PrintType);
-                printf("\n\nСумма матриц:\n");
-                PrintMatrix(Sum, PrintType);
-                printf("\n\nПроизведение матриц:\n");
-                PrintMatrix(Mul, PrintType);
-                // printf("\n\nУмножение на константу %s: ", (char)c);
-                // PrintMatrix(MulByC, PrintType);
+    printf("\nМатрица 1:\n");
+    PrintMatrix(Neo, PrintType);
+    printf("\n\nМатрица 2:\n");
+    PrintMatrix(Morpheus, PrintType);
 
-                break;
+    switch (action) {
+        case 1: {
+            Matrix* Sum = SumMatrix(Neo, Morpheus, SumType);
+            printf("\n\nСумма матриц:\n");
+            PrintMatrix(Sum, PrintType);
+            FreeMatrix(Sum);
+            free(Sum);
+
+            break;
+        }
+        case 2: {
+            Matrix* Mul = MulMatrix(Neo, Morpheus, SumType, MulType);
+            printf("\n\nПроизведение матриц:\n");
+            PrintMatrix(Mul, PrintType);
+            FreeMatrix(Mul);
+            free(Mul);
+
+            break;
+        }
+        case 3: {
+            void* constant;
+
+            printf("\nВведите константу\n");
+            switch(type) {
+                case 1: {
+                    int c;
+                    getInt(&c);
+                    constant = (void*)&c;
+                    break;
+                }
+                case 2: {
+                    float c;
+                    getFloat(&c);
+                    constant = (void*)&c;
+                    break;
+                }
+                case 3: {
+                    Complex* c;
+                    float re, im;
+                    printf("Re: ");
+                    getFloat(&re);
+                    printf("Im: ");
+                    getFloat(&im);
+                    c = NewComplex(re, im);
+                    constant = (void*)c;
+                    break;
+                }
             }
+
+            Matrix* MulByC1 = MulByConst(Neo, constant, MulType);
+            Matrix* MulByC2 = MulByConst(Neo, constant, MulType);
+            printf("\n\nУмножение на константу матрицы 1: \n");
+            PrintMatrix(MulByC1, PrintType);
+            printf("\n\nУмножение на константу матрицы 2: \n");
+            PrintMatrix(MulByC2, PrintType);
+            
+            FreeMatrix(MulByC1);
+            FreeMatrix(MulByC2);
+            free(MulByC1);
+            free(MulByC2);
+            break;
         }
-        while (getchar() != '\n') {
-            continue;
-        }
-        printf("Неверный тип, попробуйте еще раз\n");
+        case 0: break;
     }
 
     FreeMatrix(Neo);
