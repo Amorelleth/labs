@@ -20,11 +20,11 @@ template <class T> class Set {
         void insert_node(Node<T>*);
     public:
         size_t size;
-        Set() : head(NULL), size(0) {};
+        Set() : head(nullptr), size(0) {};
         Set(Set &set) : size(set.size) {
             Node<T>* current = set.get_head();
-            while (current != NULL) {
-                insert(*current->data);//ok
+            while (current != nullptr) {
+                insert(current->data);//ok
                 current = current->next;
             }
         };
@@ -38,7 +38,8 @@ template <class T> class Set {
         void clear();
         bool includes(T);
         bool includes_set(Set<T>&);
-        bool equal(const Set<T>&); // TODO перегрузить ==
+        bool equal(const Set<T>&); // перегрузить ==
+        Set<T>* map(T* (*func)(size_t, T));
         Set<T>* merge(Set<T>&);
         Set<T>* intersection(Set<T>&);
         Set<T>* subtract(Set<T>&);
@@ -49,8 +50,8 @@ template <class T> class Set {
 
         friend std::ostream& operator<<(std::ostream& out, const Set<T>& set) {
             Node<T>* current = set.head;
-            while (current != NULL) {
-                out << *current << " ";
+            while (current != nullptr) {
+                out << *current->data << " ";
                 current = current->next;
             }
             out << "\n";
@@ -60,25 +61,25 @@ template <class T> class Set {
 
 template <class T>
 Node<T>* Set<T>::get_node(T data) {
-    if (head == NULL) {
-        return NULL;
+    if (head == nullptr) {
+        return nullptr;
     }
     int idx = 0;
     Node<T>* current = head;
-    while (current != NULL) {
-        if (*current->data == data) {
+    while (current != nullptr) {
+        if (*current->data == *data) {
             return current;
         }
         current = current->next;
         idx++;
     }
-    return NULL;
+    return nullptr;
 }
 
 template <class T>
 void Set<T>::delete_node(Node<T>* node) {
     Node<T>* tmp = node->next->next;
-    node->next->next = NULL;
+    node->next->next = nullptr;
     delete node->next;
     node->next = tmp;
     size--;
@@ -86,24 +87,25 @@ void Set<T>::delete_node(Node<T>* node) {
 
 template <class T>
 void Set<T>::delete_head() {
-    head->next = NULL;
+    head->next = nullptr;
     delete head->next;
-    head = NULL;
+    head = nullptr;
     delete head;
     size--;
 }
 
 template <class T>
 void Set<T>::insert_node(Node<T>* node) {
-    if (Set<T>::get_node(*node->data) != NULL) {//ok
+    if (Set<T>::get_node(node->data) != nullptr) {
         return;
     }
-    if (head == NULL || *node->data <= *head->data)  { //ok
+    size++;
+    if (head == nullptr || *node->data <= *head->data)  {
         node->next = head; 
         head = node;
     } else {
         Node<T>* current = head;
-        while (current->next != NULL && *current->next->data < *node->data) {//ok
+        while (current->next != nullptr && *current->next->data < *node->data) {
             current = current->next;
         }
         node->next = current->next;
@@ -113,9 +115,18 @@ void Set<T>::insert_node(Node<T>* node) {
 }
 
 // template <class T>
+// Set<T>* Set<T>::map(T* (*func)(size_t, T)) {
+//     Node<T>* current = head;
+//     while (current->next != nullptr && *current->next->data < *node->data) {
+//         *func()
+//         current = current->next;
+//     }
+// };
+
+// template <class T>
 // Set<T>::Set(Set &set) : size(set.size) {
 //     Node<T>* current = set.get_head();
-//     while (current != NULL) {
+//     while (current != nullptr) {
 //         insert(current->data);
 //         current = current->next;
 //     }
@@ -129,7 +140,7 @@ void Set<T>::insert_node(Node<T>* node) {
 
 template <class T>
 bool Set<T>::includes(T data) {
-    return Set<T>::get_node(data) != NULL;
+    return Set<T>::get_node(data) != nullptr;
 }
 
 template <class T>
@@ -139,8 +150,8 @@ bool Set<T>::includes_set(Set<T>& set) {
     }
     Node<T>* current_first = head;
     Node<T>* current_second = set.get_head();
-    while (current_second != NULL) {
-        if (Set<T>::get_node(*current_second->data) == NULL) {//ok
+    while (current_second != nullptr) {
+        if (Set<T>::get_node(current_second->data) == nullptr) {//ok
             return false;
         }
         current_second = current_second->next;
@@ -152,7 +163,6 @@ template <class T>
 void Set<T>::insert(T data) {
     Node<T>* node = new Node<T>(data);
     Set<T>::insert_node(node);
-    size++;
     return;
 }
 
@@ -163,8 +173,8 @@ bool Set<T>::equal(const Set<T>& set) {
     }
     Node<T>* current_first = head;
     Node<T>* current_second = set.get_head();
-    while (current_first != NULL) {
-        if (*current_first->data != *current_second->data) {//ok
+    while (current_first != nullptr) {
+        if (!(*current_first->data == *current_second->data)) {
             return false;
         }
         current_first = current_first->next;
@@ -178,12 +188,12 @@ Set<T>* Set<T>::merge(Set<T>& set) {
     Set<T>* new_set = new Set<T>;
     Node<T>* current_first = head;
     Node<T>* current_second = set.get_head();
-    while (current_first != NULL) {
-        new_set->insert(*current_first->data);
+    while (current_first != nullptr) {
+        new_set->insert(current_first->data);
         current_first = current_first->next;
     }
-    while (current_second != NULL) {
-        new_set->insert(*current_second->data);
+    while (current_second != nullptr) {
+        new_set->insert(current_second->data);
         current_second = current_second->next;
     }
     return new_set;
@@ -194,9 +204,9 @@ Set<T>* Set<T>::intersection(Set<T>& set) {
     Set<T>* new_set = new Set<T>;
     Node<T>* current_first = head;
     Node<T>* current_second = set.get_head();
-    while (current_first != NULL) {
-        if (set.get_node(*current_first->data) != NULL) {
-            new_set->insert(*current_first->data);
+    while (current_first != nullptr) {
+        if (set.get_node(current_first->data) != nullptr) {
+            new_set->insert(current_first->data);
         }
         current_first = current_first->next;
     }
@@ -208,9 +218,9 @@ Set<T>* Set<T>::subtract(Set<T>& set) {
     Set<T>* new_set = new Set<T>;
     Node<T>* current_first = head;
     Node<T>* current_second = set.get_head();
-    while (current_first != NULL) {
-        if (!set.includes(*current_first->data)) {
-            new_set->insert(*current_first->data);
+    while (current_first != nullptr) {
+        if (!set.includes(current_first->data)) {
+            new_set->insert(current_first->data);
         }
         current_first = current_first->next;
     }
@@ -225,7 +235,7 @@ Node<T>* Set<T>::get_head() const {
 template <class T>
 T Set<T>::delete_elem(T data) {
     Node<T>* current = head;
-    while (*current->next->data != data) {
+    while (current->next->data != data) {
         current = current->next;
     }
     Node<T>* tmp = current;
@@ -237,35 +247,21 @@ T Set<T>::delete_elem(T data) {
 template <class T>
 void Set<T>::clear() {
     Node<T>* current = head;
-    if (current == NULL) {
+    if (current == nullptr) {
         return;
     }
-    while (current->next != NULL) {
+    while (current->next != nullptr) {
         delete_node(current);
     }
     delete_head();
 }
 
-
-// TODO переписать
-
-// template <class T>
-// std::ostream& Set<T>::operator<<(std::ostream& out, const Set<T>& set) {
-//     Node<T>* current = set.head;
-//     while (current != NULL) {
-//         out << *current << " ";
-//         current = current->next;
-//     }
-//     out << "\n";
-//     return out;
-// }
-
 template <class T>
 Set<T>& Set<T>::operator=(const Set<T>& set) {
     Node<T>* current = set.get_head();
     size = set.size;
-    while (current != NULL) {
-        insert(*current->data);//ok
+    while (current != nullptr) {
+        insert(current->data);//ok
         current = current->next;
     }
     return *this;
