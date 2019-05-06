@@ -23,6 +23,8 @@ template <class T> class Set {
         Node<T>* get_head() const;
     public:
         friend bool test_clear();
+        friend bool test_insert();
+        friend bool test_merge();
         size_t size;
         Set() : head(nullptr), size(0) {};
         Set(Set &set) : size(set.size) {
@@ -49,7 +51,7 @@ template <class T> class Set {
         bool includes(T) const;
         bool includes_set(Set<T>&);
         bool equal(const Set<T>&) const;
-        Set<T>* map(T* (*func)(size_t, T));
+        Set<T>* map(T (*func)(T));
         Set<T>* merge(const Set<T>&) const;
         Set<T>* intersection(const Set<T>&) const;
         Set<T>* subtract(const Set<T>&) const;
@@ -75,10 +77,10 @@ template <class T> class Set {
         friend Set<T>* operator+(const Set<T>& left, const Set<T>& right) {
             return left.merge(right);
         };
-        friend const Set<T>* operator-(const Set<T>& left, const Set<T>& right) {
+        friend Set<T>* operator-(const Set<T>& left, const Set<T>& right) {
             return left.subtract(right);
         };
-        friend const Set<T>* operator*(const Set<T>& left, const Set<T>& right) {
+        friend Set<T>* operator*(const Set<T>& left, const Set<T>& right) {
             return left.intersection(right);
         };
 };
@@ -138,14 +140,16 @@ void Set<T>::insert_node(Node<T>* node) {
     return;
 }
 
-// template <class T>
-// Set<T>* Set<T>::map(T* (*func)(size_t, T)) {
-//     Node<T>* current = head;
-//     while (current->next != nullptr && *current->next->data < *node->data) {
-//         *func()
-//         current = current->next;
-//     }
-// };
+template <class T>
+Set<T>* Set<T>::map(T (*func)(T)) {
+    Node<T>* current = head;
+    Set<T>* set = new Set<T>();
+    while (current != nullptr) {
+        set->insert(func(current->data));
+        current = current->next;
+    }
+    return set;
+};
 
 template <class T>
 bool Set<T>::includes(T data) const {
@@ -256,9 +260,7 @@ T Set<T>::delete_elem(T data) {
     while (current->next->next != nullptr && *current->next->data != *data) {
         current = current->next;
     }
-    if (*current->next->data != *data) {
-        throw "No such element";
-    } else {
+    if (*current->next->data == *data) {
         delete_node(current);
     }
 

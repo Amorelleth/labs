@@ -12,25 +12,17 @@ class Number {
         Number() {};
         virtual ~Number() {};
         virtual void serialize (std::ostream&) const {};
-        virtual Complex to_complex() const;
+        virtual Complex* to_complex() const;
 
         friend std::ostream& operator<<(std::ostream& out, Number& num);        
-        friend bool operator<(const Number& left, const Number& right) {
-            return left.length < right.length;
-        };
-        friend bool operator<=(const Number& left, const Number& right) {
-            return left.length <= right.length;
-        };
-        friend bool operator>=(const Number& left, const Number& right) {
-            return left.length >= right.length;
-        };
-        friend bool operator>(const Number& left, const Number& right) {
-            return left.length > right.length;
-        };
-        bool operator<=(const Number* right) {
-            std::cout << "f";
-            return false;
-        };
+        friend bool operator<(const Number&, const Number&);
+        friend bool operator<=(const Number&, const Number&);
+        friend bool operator>=(const Number&, const Number&);
+        friend bool operator>(const Number&, const Number&);
+        friend Number* operator+(const Number&, const Number&);
+        friend Number* operator-(const Number&, const Number&);
+        friend Number* operator*(const Number&, const Number&);
+        friend Number* operator/(const Number&, const Number&);
 };
 
 class Complex : public Number {
@@ -46,8 +38,8 @@ class Complex : public Number {
         };
         ~Complex() {};
 
-        Complex to_complex() const {
-            return *this;
+        Complex* to_complex() const {
+            return new Complex(*this);
         };
 
         friend Complex operator+(const Complex& left, const Complex& right) {
@@ -107,8 +99,8 @@ class Float : public Number {
             length = d;
         };
         ~Float() {}
-        Complex to_complex() const {
-            return Complex(data);
+        Complex* to_complex() const {
+            return new Complex(data);
         };
         void serialize(std::ostream& out) const {
             out << data;
@@ -132,8 +124,8 @@ class Int : public Number {
             data = d;
         }
         ~Int() {}
-        Complex to_complex() const {
-            return Complex(data);
+        Complex* to_complex() const {
+            return new Complex(data);
         };
         virtual void serialize(std::ostream& out) const {
             out << data;
@@ -148,13 +140,37 @@ class Int : public Number {
         }
 };
 
-Complex Number::to_complex() const { return Complex(); };
+Complex* Number::to_complex() const { return NULL; };
 
 bool operator==(const Number& left, const Number& right) {
-    return left.to_complex() == right.to_complex();
+    return *left.to_complex() == *right.to_complex();
 };
 bool operator!=(const Number& left, const Number& right) {
-    return left.to_complex() != right.to_complex();
+    return *left.to_complex() != *right.to_complex();
+};
+bool operator<(const Number& left, const Number& right) {
+    return *left.to_complex() < *right.to_complex();
+};
+bool operator<=(const Number& left, const Number& right) {
+    return *left.to_complex() <= *right.to_complex();
+};
+bool operator>(const Number& left, const Number& right) {
+    return *left.to_complex() > *right.to_complex();
+};
+bool operator>=(const Number& left, const Number& right) {
+    return *left.to_complex() >= *right.to_complex();
+};
+Number* operator+(const Number& left, const Number& right) {
+    return new Complex(*left.to_complex() + *right.to_complex());
+};
+Number* operator-(const Number& left, const Number& right) {
+    return new Complex(*left.to_complex() - *right.to_complex());
+};
+Number* operator*(const Number& left, const Number& right) {
+    return new Complex(*left.to_complex() * *right.to_complex());
+};
+Number* operator/(const Number& left, const Number& right) {
+    return new Complex(*left.to_complex() / *right.to_complex());
 };
 std::ostream& operator<<(std::ostream& out, Number& num) {
     num.serialize(out);

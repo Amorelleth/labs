@@ -16,6 +16,11 @@ class Complex : public Number {
         };
         ~Complex() {};
 
+        Complex operator=(const Complex& right) {
+            re == right.re;
+            im == right.im;
+            return *this;
+        };
         friend Complex operator+(const Complex& left, const Complex& right) {
             return Complex(left.re + right.re, left.im + right.im);
         };
