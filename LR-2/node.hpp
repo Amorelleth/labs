@@ -11,18 +11,3 @@ struct Node {
     T data;
     Node<T> *next;
 };
-
-template <typename T>
-std::ostream& operator<<(std::ostream& out, Node<T> &t) {
-    if (Float* a = dynamic_cast<Float*>(t.data)) {
-        out << a->data;
-    }
-    if (Int* a = dynamic_cast<Int*>(t.data)) {
-        out << a->data;
-    }
-    // if (Complex* a = dynamic_cast<Complex*>(t.data)) {
-    //     out << a->data;
-    // }
-    out << t.data;
-    return out;
-};
