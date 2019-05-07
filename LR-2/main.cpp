@@ -246,7 +246,12 @@ int main() {
                 }
                 case Delete: {
                     does_key_exist(m, name);
-                    m[name]->delete_elem();
+                    if (std::cin.peek() == '\n') {
+                        m[name]->set->~Set();
+                        m.erase(name);
+                    } else {
+                        m[name]->delete_elem();
+                    }
                     continue;
                 }
                 case Clear: {

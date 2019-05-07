@@ -1,17 +1,8 @@
 #include <iostream>
 #include "set.hpp"
 #include "types.hpp"
-#include "types.hpp"
 
 #define TESTS 11
-
-// - map, where
-// - объединение
-// - пересечение
-// - вычитание
-// - проверка на включение подмножества
-// - проверка на вхождение элемента
-// - сравнение (равенство) двух
 
 template <class T>
 void clear_array(T arr[], int size) {
