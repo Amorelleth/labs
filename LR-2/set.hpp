@@ -1,31 +1,21 @@
 #pragma once
 #include <iostream>
-#include <string>
 #include "node.hpp"
-
-// - map, where
-// + объединение
-// + пересечение
-// + вычитание
-// + проверка на включение подмножества
-// + проверка на вхождение элемента
-// + сравнение (равенство) двух
 
 template <class T> class Set {
     private:
         Node<T>* head;
         Node<T>* get_node(T) const;
-
         void delete_node(Node<T>*);
         void delete_head();
         void insert_node(Node<T>*);
     protected:
         Node<T>* get_head() const;
     public:
+        friend bool compare_results(Number* [], int, Set<Number*>*, std::string);
         friend bool test_clear();
-        friend bool test_insert();
-        friend bool test_merge();
         size_t size;
+
         Set() : head(nullptr), size(0) {};
         Set(Set &set) : size(set.size) {
             Node<T>* current = set.get_head();
@@ -39,8 +29,6 @@ template <class T> class Set {
                 insert(arr[i]);
             }
         }
-
-
         ~Set() {
             clear();
             delete head;
@@ -52,6 +40,7 @@ template <class T> class Set {
         bool includes_set(Set<T>&);
         bool equal(const Set<T>&) const;
         Set<T>* map(T (*func)(T));
+        Set<T>* where(bool (*func)(T));
         Set<T>* merge(const Set<T>&) const;
         Set<T>* intersection(const Set<T>&) const;
         Set<T>* subtract(const Set<T>&) const;
@@ -146,6 +135,19 @@ Set<T>* Set<T>::map(T (*func)(T)) {
     Set<T>* set = new Set<T>();
     while (current != nullptr) {
         set->insert(func(current->data));
+        current = current->next;
+    }
+    return set;
+};
+
+template <class T>
+Set<T>* Set<T>::where(bool (*func)(T)) {
+    Node<T>* current = head;
+    Set<T>* set = new Set<T>();
+    while (current != nullptr) {
+        if (func(current->data)) {
+            set->insert(current->data);
+        }
         current = current->next;
     }
     return set;

@@ -1,135 +1,121 @@
 #include <iostream>
-#include <array>
 #include "set.hpp"
 #include "types.hpp"
+#include "types.hpp"
+
+#define TESTS 11
 
 // - map, where
-// + объединение
-// + пересечение
-// + вычитание
-// + проверка на включение подмножества
-// + проверка на вхождение элемента
-// + сравнение (равенство) двух
+// - объединение
+// - пересечение
+// - вычитание
+// - проверка на включение подмножества
+// - проверка на вхождение элемента
+// - сравнение (равенство) двух
 
 template <class T>
-void clear_initial_array(T arr[], int size) {
+void clear_array(T arr[], int size) {
     for (int i = 0; i < size; i++) {
         delete arr[i];
     }
 }
 
-bool test_insert() {
-    Number* initial[5] = { new Float(4.5), new Int(4), new Float(-999), new Complex(4, -6), new Int(4) };
-    Number* expected[4] = { new Int(4), new Float(4.5), new Complex(4, -6), new Float(-999) };
-    Set<Number*> set(initial, 5);
-    Set<Number*> expected_set(expected, 4);
-    
-    Node<Number*>* tmp = set.get_head();
+bool compare_results(Number* expected[], int size, Set<Number*>* set, std::string test_name) {
+    Set<Number*> expected_set(expected, size);
+    auto tmp = set->get_head();
     int i = 0;
+    bool res = true;
     while (tmp != nullptr) {
         if (*tmp->data != *expected[i]) {
-            std::cout << "FAIL test-insert\n";
-            std::cout << "---EXPECTED " << expected_set;
-            std::cout << "---GOT " << set;
-            return false;
+            res = false;
         }
         tmp = tmp->next;
         i++;
-        return false;
     }
 
-    std::cout << "PASS test-insert\n";
-    return true;
+    if (res == true) {
+        std::cout << "PASS " << test_name << "\n";
+    } else {
+        std::cout << "FAIL " << test_name << "\n";
+        std::cout << "---EXPECTED " << expected_set;
+        std::cout << "---GOT " << *set;
+    }
+
+    clear_array(expected, size);
+    return res;
+}
+
+bool test_insert() {
+    Number* expected[4] = { new Int(4), new Float(4.5), new Complex(4, -6), new Float(-999) };
+    Set<Number*> set;
+    set.insert(new Float(4.5));
+    set.insert(new Int(4));
+    set.insert(new Float(-999));
+    set.insert(new Complex(4, -6));
+    set.insert(new Int(4));
+    return compare_results(expected, 4, &set, std::string("test-insert"));
 }
 
 bool test_clear() {
-    Number* init[2] = { new Int(54), new Float(-54) };
-    Set<Number*> set(init, 2);
+    Number* initial[2] = { new Int(54), new Float(-54) };
+    Set<Number*> set(initial, 2);
     set.clear();
-
-    std::cout << set;
 
     if (set.size != 0 || set.get_head() != nullptr) {
         std::cout << "FAIL test-clear\n";
         return false;
     }
 
+    clear_array(initial, 2);
     std::cout << "PASS test-clear\n";
     return true;
 }
 
 bool test_merge() {
-    // Number* first[3] = { new Float(4.5), new Int(4), new Complex(0, 0) };
-    // Number* second[3] = { new Float(4.5), new Int(1), new Float(3.3) };
-    // Number* expected[5] = { new Complex(0, 0), new Int(1), new Float(3.3), new Int(4), new Float(4.5) };
-    // Set<Number*> set = *(Set(first, 3)) + Set(second, 3));
-    // Set<Number*> expected_set(expected, 5);
-    
-    // Node<Number*>* tmp = set.get_head();
-    // int i = 0;
-    // while (tmp != nullptr) {
-    //     if (*tmp->data != *expected[i]) {
-    //         std::cout << "FAIL test-merge\n";
-    //         std::cout << "---EXPECTED " << expected_set;
-    //         std::cout << "---GOT " << set;
-    //         return false;
-    //     }
-    //     tmp = tmp->next;
-    //     i++;
-    //     return false;
-    // }
-
-    // std::cout << "PASS test-merge\n";
-    return true;
+    Number* first[3] = { new Float(4.5), new Int(4), new Complex(0, 0) };
+    Number* second[3] = { new Float(4.5), new Int(1), new Float(3.3) };
+    Number* expected[5] = { new Complex(0, 0), new Int(1), new Float(3.3), new Int(4), new Float(4.5) };
+    Set<Number*>* set = Set<Number*>(first, 3) + Set<Number*>(second, 3);
+    bool res = compare_results(expected, 5, set, std::string("test-merge"));
+    clear_array(first, 3);
+    clear_array(second, 3);
+    return res;
 }
 
 bool test_intersection() {
     Number* first[3] = { new Float(4.5), new Int(4), new Complex(0, 0) };
     Number* second[3] = { new Float(4.5), new Int(1), new Float(3.3) };
     Number* expected[1] = { new Float(4.5) };
-    Set<Number*> first_set(first, 3);
-    Set<Number*> second_set(second, 3);
-    Set<Number*> expected_set(expected, 1);
-    
-    const Set<Number*>* multuplication = first_set * second_set;
-    if (*multuplication != expected_set) {
-        std::cout << "FAIL test-intersection\n";
-        return false;
-    }
-
-    std::cout << "PASS test-intersection\n";
-    return true;
+    Set<Number*>* set = Set<Number*>(first, 3) * Set<Number*>(second, 3);
+    bool res = compare_results(expected, 1, set, std::string("test-intersection"));
+    clear_array(first, 3);
+    clear_array(second, 3);
+    return res;
 }
 
 bool test_subtract() {
     Number* first[3] = { new Float(4.5), new Int(4), new Complex(0, 0) };
     Number* second[3] = { new Float(4.5), new Int(1), new Float(3.3) };
-    Number* expected[2] = { new Int(4), new Complex(0, 0) };
-    Set<Number*> first_set(first, 3);
-    Set<Number*> second_set(second, 3);
-    Set<Number*> expected_set(expected, 2);
-    
-    const Set<Number*>* sub = first_set - second_set;
-    if (*sub != expected_set) {
-        std::cout << "FAIL test-subtract\n";
-        return false;
-    }
-
-    std::cout << "PASS test-subtract\n";
+    Number* expected[2] = { new Complex(0, 0), new Int(4) };
+    Set<Number*>* set = Set<Number*>(first, 3) - Set<Number*>(second, 3);
+    bool res = compare_results(expected, 2, set, std::string("test-subtract"));
+    clear_array(first, 3);
+    clear_array(second, 3);
     return true;
 }
 
 bool test_includes() {
-    Number* arr[3] = { new Float(4.5), new Int(4), new Complex(0, 0) };
-    Set<Number*> set(arr, 3);
+    Number* initial[3] = { new Float(4.5), new Int(4), new Complex(0, 0) };
+    Set<Number*> set(initial, 3);
 
+    bool res = true;
     if (set.includes(new Float(3.3)) == true || set.includes(new Complex(0, 0)) == false) {
-        std::cout << "FAIL test-includes\n";
-        return false;
+        res = false;
     }
 
-    std::cout << "PASS test-includes\n";
-    return true;
+    clear_array(initial, 3);
+    res ? std::cout << "PASS test-includes\n" : std::cout << "FAIL test-includes\n";
+    return res;
 }
 
 bool test_includes_set() {
@@ -137,40 +123,36 @@ bool test_includes_set() {
     Number* second[2] = { new Int(1), new Complex(0, 0) };
     Set<Number*> first_set(first, 4);
     Set<Number*> second_set(second, 2);
-    
-    if (first_set.includes_set(second_set) == false || second_set.includes_set(first_set) == true) {
-        std::cout << "FAIL test-includes-set\n";
-        return false;
-    }
+    bool res = first_set.includes_set(second_set) == true || second_set.includes_set(first_set) == false;
+    clear_array(first, 4);
+    clear_array(second, 2);
 
-    std::cout << "PASS test-includes-set\n";
-    return true;
+    res ? std::cout << "PASS test-includes-set\n" : std::cout << "FAIL test-includes-set\n";
+    return res;
 }
 
 bool test_equality() {
     Number* first[2] = { new Int(1), new Complex(0, 0) };
-    Number* second[2] = { new Int(1), new Complex(0, 0) };
+    Number* second[3] = { new Complex(0, 0), new Int(1), new Int(1) };
     Set<Number*> first_set(first, 2);
-    Set<Number*> second_set(second, 2);
-    
-    if (first_set != second_set) {
-        std::cout << "FAIL test-equality\n";
-        return false;
-    }
+    Set<Number*> second_set(second, 3);
+    bool res = first_set == second_set;
+    clear_array(first, 2);
+    clear_array(second, 3);
 
-    std::cout << "PASS test-equality\n";
+    res ? std::cout << "PASS test-equality\n" : std::cout << "FAIL test-equality\n";
     return true;
 }
 
 bool test_deletion() {
     const int size = 5;
     bool res = true;
-    Number* arr[size] = { new Int(1), new Int(2), new Int(3), new Int(4), new Int(5) };
+    Number* initial[size] = { new Int(1), new Int(2), new Int(3), new Int(4), new Int(5) };
     Number* delete_last[size - 1] = { new Int(1), new Int(2), new Int(3), new Int(4) };
     Number* delete_first[size - 2] = { new Int(2), new Int(3), new Int(4) };
     Number* delete_middle[size - 3] = { new Int(2), new Int(4) };
 
-    Set<Number*> set(arr, size);
+    Set<Number*> set(initial, size);
     Set<Number*> last_deleted(delete_last, size - 1);
     Set<Number*> first_deleted(delete_first, size - 2);
     Set<Number*> middle_deleted(delete_middle, size - 3);
@@ -193,54 +175,54 @@ bool test_deletion() {
     if (res == true) {
         std::cout << "PASS test-deletion\n";
     }
+    clear_array(initial, size);
+    clear_array(delete_last, size - 1);
+    clear_array(delete_first, size - 2);
+    clear_array(delete_middle, size - 3);
 
     return res;
 }
 
-bool test_similar_objects() {
-
-}
-
-// bool test_equality() {
-
-// }
-
-bool test_map() {
-
-}
-
-bool test_where() {
-    
-}
-
-Number* nullfunc(Number* v) {
+Number* mapfunc(Number* v) {
     return *v + Int(5);
 }
 
+bool test_map() {
+    Number* initial[3] = { new Complex(3, 4), new Float(54), new Complex(9, 0) };
+    Number* expected[3] = { new Complex(8, 4), new Complex(14, 0), new Float(59), };
+    Set<Number*> set(initial, 3);
+    Set<Number*>* map_set = set.map(mapfunc);
+    bool res = compare_results(expected, 3, map_set, "test-map");
+    clear_array(initial, 3);
+    return res;
+}
+
+bool wherefunc(Number* v) {
+    return *v < Int(50);
+}
+
+bool test_where() {
+    Number* initial[3] = { new Complex(3, 4), new Float(54), new Complex(9, 0) };
+    Number* expected[2] = { new Complex(3, 4), new Complex(9, 0) };
+    Set<Number*> set(initial, 3);
+    bool res = compare_results(expected, 2, &set, "test-where");
+    clear_array(initial, 3);
+    return res;
+}
+
 int main() {
-    Number* arr[3] = { new Complex(3, 4), new Float(54), new Complex(9, 0) };
-    // Number* arr[5] = { new Complex(3, 4), new Float(54), new Complex(9, 0) };
-    Set<Number*> set(arr, 3);
-    Set<Number*>* set2 = set.map(nullfunc);
-    std::cout << set << *set2;
+    int counter = 0;
+    counter += test_clear();
+    counter += test_insert();
+    counter += test_merge();
+    counter += test_intersection();
+    counter += test_subtract();
+    counter += test_includes();
+    counter += test_includes_set();
+    counter += test_equality();
+    counter += test_deletion();
+    counter += test_map();
+    counter += test_where();
 
-
-    test_clear();
-    test_insert();
-    test_merge();
-    test_intersection();
-    test_subtract();
-    test_includes();
-    test_includes_set();
-    test_equality();
-    test_deletion();
-
-
-
-    // Set<Number*> set(arr, 3);
-
-    // Float c(5);
-    // Complex b(6, 5);
-
-    // std::cout << c << " " << *set.get_head()->data << " " << (c == *set.get_head()->data);
+    std::cout << "TESTS PASSED: " << counter << "/" << TESTS << '\n';
 }

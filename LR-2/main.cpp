@@ -1,6 +1,4 @@
-#include <any>
 #include <iostream>
-#include <vector>
 #include <map>
 #include "set.hpp"
 #include "types.hpp"
@@ -42,12 +40,9 @@ std::string resolve_exception(Exception exc) {
 }
 
 Type resolve_type(std::string &type) {
-    if (type == "int") {
-        return IntType;
-    } else if (type == "complex") {
-        return ComplexType;
-    } else if (type == "float") {
-        return FloatType;
+    if (type == "int") return IntType;
+    } else if (type == "complex") return ComplexType;
+    } else if (type == "float") return FloatType;
     } else {
         clear_stream();
         throw InvalidType;
@@ -55,38 +50,23 @@ Type resolve_type(std::string &type) {
 }
 
 Action resolve_action(std::string &action) {
-    if (action == "insert") {
-        return Insert;
-    } else if (action == "delete") {
-        return Delete;
-    } else if (action == "clear") {
-        return Clear;
-    } else if (action == "==" || action == "equal") {
-        return Equal;
-    } else if (action == "print") {
-        return Print;
-    } else if (action == "includes") {
-        return Includes;
-    } else if (action == "+" || action == "merge") {
-        return Merge;
-    } else if (action == "*" || action == "intersection") {
-        return Intersection;
-    } else if (action == "-" || action == "subtract") {
-        return Subtract;
-    } else {
-        return HelperAction;
-    }
+    if (action == "insert") return Insert;
+    } else if (action == "delete") return Delete;
+    } else if (action == "clear") return Clear;
+    } else if (action == "==" || action == "equal") return Equal;
+    } else if (action == "print") return Print;
+    } else if (action == "includes") return Includes;
+    } else if (action == "+" || action == "merge") return Merge;
+    } else if (action == "*" || action == "intersection") return Intersection;
+    } else if (action == "-" || action == "subtract") return Subtract;
+    } else return HelperAction;
 }
 
 Helper resolve_helper(std::string &action) {
-    if (action == "create") {
-        return Create;
-    } else if (action == "help") {
-        return Help;
-    } else if (action == "sets") {
-        return ShowSets;
-    } else if (action == "exit") {
-        return Exit;
+    if (action == "create") return Create;
+    } else if (action == "help") return Help;
+    } else if (action == "sets") return ShowSets;
+    } else if (action == "exit") return Exit;
     } else {
         clear_stream();
         throw InvalidAction;
@@ -100,6 +80,7 @@ class SetClient {
 
         SetClient(std::string _name) : name(_name), set(new Set<Number*>) {};
         SetClient(std::string _name, Set<Number*>* _set) : name(_name), set(_set) {};
+        ~SetClient() { delete set; };
 
         void insert() {
             std::string type;
@@ -247,6 +228,9 @@ int main() {
                         continue;
                     }
                     case Exit: {
+                        for (auto const& [key, val] : m) {
+                            delete val;
+                        }
                         return 0;
                     }
                 }
