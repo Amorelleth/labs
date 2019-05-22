@@ -4,6 +4,16 @@
 #include "types.hpp"
 #include "node.hpp"
 
+// Вариант 12
+
+// - map, where - не включены в консольный интерфейс, см. тесты
+// - объединение
+// - пересечение
+// - вычитание
+// - проверка на включение подмножества
+// - проверка на вхождение элемента
+// - сравнение (равенство) двух
+
 class SetClient;
 
 enum Type { IntType, FloatType, ComplexType };
@@ -23,7 +33,7 @@ void clear_stream() {
 }
 
 void does_key_exist(std::map<std::string, SetClient*> &m, std::string &key) {
-    if (m.find(key) == m.end() || m.find(key) == m.end()) {
+    if (m.find(key) == m.end()) {
         clear_stream();
         throw SetDoesNotExist;
     }
