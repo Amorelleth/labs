@@ -1,20 +1,12 @@
 #pragma once
 #include <iostream>
 #include "sequence.hpp"
-#include "node.hpp"
 
 template<class T>
 class ArraySequence : public Sequence<T> {
     private:
         T* items;
-        void Scale() {
-            this->length++;
-            if (this->GetIsEmpty()) {
-                items = new T[1];
-            } else {
-                items = (T*)realloc(items, this->length * sizeof(T));
-            }
-        }
+
     protected:
         virtual void Serialize(std::ostream& os) const override {
             for (int i = 0; i < this->length; i++) {
@@ -25,12 +17,13 @@ class ArraySequence : public Sequence<T> {
     public:
         ArraySequence() : Sequence<T>() {};
         ArraySequence(T d) : Sequence<T>() { Append(d); };
+        ~ArraySequence() { delete items; }
 
         ArraySequence<T>* GetSubsequence(int left, int right) override {
             this->GettingOutOfRangeCheck(left, right);
-            auto *newSeq = new ArraySequence<T>;
+            auto newSeq = new ArraySequence<T>;
 
-            for (int i = left; left <= right; i++) {
+            for (int i = left; i <= right; i++) {
                 newSeq->Append(items[i]);
             }
 
@@ -38,49 +31,25 @@ class ArraySequence : public Sequence<T> {
         }
 
         void InsertAt(int index, T item) override {
-            // this->InsertionOutOfRangeCheck(index);
-            if (index < 0 || index >= this->length) {
-                throw std::out_of_range("Invalid parameter");
-            }
-
-            this->length++;
-
-            items = (T*) realloc(items, this->length * sizeof(T));
-
-            for (int j = this->length - 2; j >= index; j--) {
+            this->InsertionOutOfRangeCheck(index);
+            items = this->GetIsEmpty() ? new T[1] : (T*)realloc(items, (this->length + 1)*sizeof(T));
+            
+            for (int j = this->length - 1; j >= index; j--) {
                 items[j + 1] = items[j];
             }
-
+            
+            this->length++;
             items[index] = item;
         }
 
-        void Append (T item) override {
-            if (this->GetIsEmpty()) {
-                items = new T[1];
-                items[0] = item;
-            } else {
-                items = (T*)realloc(items, this->length*sizeof(T));
-                items[this->length - 1] = item;
-                // std::cout << *this << std::endl;
-            }
-            // std::cout << *this << std::endl;
-            this->length++;
-            std::cout << "---" << items[0] << items[2] << std::endl;
-        }
-
-        void Prepend(T item) override {
-            Scale();
-            items[0] = item;
-        }
-
         void Remove(T item) override {
-            for (int i = 0; i < this->length - 1; i++) {
+            for (int i = 0; i < this->length; i++) {
                 if (items[i] == item) {
-                    for (int j = i; j < this->length - 1; j++) {
+                    for (int j = i; j < this->length; j++) {
                         items[j] = items[j + 1];
                     }
                     this->length--;
-                    items = (T *) realloc(items, this->length * sizeof(T));
+                    items = (T*)realloc(items, this->length * sizeof(T));
                     break;
                 }
             }

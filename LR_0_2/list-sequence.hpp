@@ -6,121 +6,100 @@
 template<class T> class ListSequence : public Sequence<T> {
     private:
         Node<T>* _head;
-        Node<T>* GetNode(int);
-        Node<T>* GetNodeByData(T);
-        Node<T>* GetFirstNode() { return _head; };
-        Node<T>* GetLastNode() { return GetNode(this->length - 1); };
+
+        Node<T>* GetNode(int index) {
+            this->GettingOutOfRangeCheck(index);
+            auto tmp = _head;
+            for (int counter = 0; counter != index; counter++) {
+                tmp = tmp->next;
+            }
+            return tmp;
+        }
+
+        void RemoveNode(Node<T>* node) {
+            auto tmp = node->next->next;
+            node->next->next = nullptr;
+            delete node->next;
+            node->next = tmp;
+            this->length--;
+        }
+
+        void RemoveHead() {
+            _head->next = nullptr;
+            delete _head->next;
+            _head = nullptr;
+            delete _head;
+            this->length--;
+        }
+
     protected:
-        void Serialize(std::ostream&) const override;
+        void Serialize(std::ostream& os) const override {
+            for (auto node = _head; node != nullptr; node = node->next) {
+                os << *node << (node->next == nullptr ? "" : ",");
+            }
+        }
 
     public:
         ListSequence() : Sequence<T>() { _head = nullptr; };
         ListSequence(T d) : Sequence<T>(d) { Append(d); };
+        ~ListSequence() {
+            auto current = _head;
+            if (current == nullptr) return;
+            while (current->next != nullptr) RemoveNode(current);
+            RemoveHead();
+        }
 
         T Get(int index) override { return GetNode(index)->data; };
 
-        Sequence<T>* GetSubsequence(int, int) override;
-    	void InsertAt(int, T) override;
-    	void Append(T) override;
-    	void Prepend(T) override;
-    	void Remove(T) override;
+        Sequence<T>* GetSubsequence(int left, int right) override {
+            this->GettingOutOfRangeCheck(left, right);
+            auto newSeq = new ListSequence();
+            auto item = GetNode(left);
+
+            for (int counter = left; counter <= right; counter++) {
+                newSeq->Append(item->data);
+                item = item->next;
+            }
+
+            return newSeq;
+        }
+
+        void InsertAt(int index, T d) override {
+            this->InsertionOutOfRangeCheck(index);
+            auto node = new Node<T>(d);
+
+            if (index == 0) {
+                node->next = _head;
+                _head = node;
+            } else {
+                auto tmp = GetNode(index - 1);
+                node->next = tmp->next;
+                tmp->next = node;
+            }
+
+            this->length++;
+        }
+
+        void Remove(T data) override {
+            if (!this->GetIsEmpty()) {
+                if (_head->data == data) {
+                    if (_head->next == nullptr) {
+                        RemoveHead();
+                    } else {
+                        auto tmp = _head->next;
+                        _head->next = nullptr;
+                        delete _head->next;
+                        _head = tmp;
+                        this->length--;
+                    }
+                } else {
+                    for (auto current = _head; current->next != nullptr; current = current->next) {
+                        if (current->next->data == data) {
+                            RemoveNode(current);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 };
-
-template<class T> Node<T>* ListSequence<T>::GetNode(int index) {
-    this->GettingOutOfRangeCheck(index);
-    Node<T>* tmp = _head;
-    for (int counter = 0; counter != index; counter++) {
-        tmp = tmp->next;
-    }
-    return tmp;
-}
-
-template<class T> Node<T>* ListSequence<T>::GetNodeByData(T d) {
-    //TODO exception if _head == nullptr
-    // if (_head == nullptr) return;
-    for (Node<T>* tmp = _head; tmp->next != nullptr; tmp = tmp->next) {
-        if (tmp->data != d) return tmp;
-    }
-    return nullptr;
-}
-
-template<class T> void ListSequence<T>::Serialize(std::ostream& os) const {
-    for (const Node<T>* node = this->_head; node != nullptr; node = node->next) {
-        os << *node << (node->next == nullptr ? "" : ",");
-    }
-}
-
-template<class T> Sequence<T>* ListSequence<T>::GetSubsequence(int left, int right) {
-    this->GettingOutOfRangeCheck(left, right);
-
-    ListSequence<T>* newSeq = new ListSequence();
-    Node<T>* item = GetNode(left);
-    for (int counter = left; counter <= right; counter++) {
-        newSeq->Append(item->data);
-        item = item->next;
-    }
-    return newSeq;
-}
-
-template<class T> void ListSequence<T>::Append(T d) {
-    Node<T>* node = new Node(d);
-    if (this->GetIsEmpty() == 1) {
-        _head = node;
-    } else {
-        GetLastNode()->next = node;
-    }
-    this->length++;
-    // InsertAt(0, d);
-}
-
-template<class T> void ListSequence<T>::Prepend(T d) {
-    Node<T>* node = new Node(d);
-    if (this->GetIsEmpty() != 1) {
-        node->next = _head;
-    }
-    _head = node;
-    this->length++;
-}
-
-template<class T> void ListSequence<T>::InsertAt(int index, T d) {
-    this->InsertionOutOfRangeCheck(index);
-    Node<T>* tmp = index == 0 ? GetFirstNode() : GetNode(index - 1);
-    Node<T>* node = new Node(d);
-    Node<T>* next = tmp->next;
-    tmp->next = node;
-    node->next = next;
-    this->length++;
-}
-
-// Node<T>* GetNode(int index) {
-//     Node<T>* tmp = head;
-//     for (int counter = 0; counter != index; counter++) {
-//         tmp = tmp->next;
-//     }
-//     return tmp;
-// }
-// Node<T>* GetNodeByData(T _data) {
-//     //TODO exception if head == nullptr
-//     // if (head == nullptr) return;
-//     for (Node<T>* tmp = head; tmp->next != nullptr; tmp = tmp->next) {
-//         if (tmp->data != _data) return tmp;
-//     }
-//     return nullptr;
-// }
-// Node<T>* GetFirstNode() {
-//     return head;
-// }
-// Node<T>* GetLastNode() {
-//     return GetNode(this->length - 1);
-// }
-
-
-
-template<class T> void ListSequence<T>::Remove(T d) {
-    if (GetNodeByData(d) != nullptr) {
-        
-        // delete 
-    }
-    std::cout << GetNodeByData(999)->data << std::endl;
-    this->length--;
-}

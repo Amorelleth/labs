@@ -1,38 +1,13 @@
 #include <iostream>
+#include <exception>
+#include <string>
 #include "node.hpp"
 #include "sequence.hpp"
 #include "list-sequence.hpp"
 #include "array-sequence.hpp"
 
-// Написать, по крайней мере, один тест, реализующий следующий сценарий:
-// Создать пустую последовательность (TElement = int).
-// Проверить, что длина = 0
-// Добавить (Append) элемент «23».
-// Проверить, что длина = 1
-// Проверить, что GetFisrt возвращает «23»
-// Проверить, что GetLast возвращает «23»
-// Проверить, что Get(0) возвращает «23», а Get(-1) и Get(1) – выбрасывают исключение.
-
-// Добавить (Append) элемент «43»
-// Проверить, что длина = 2
-// Проверить, что GetFisrt возвращает «23»
-// Проверить, что GetLast возвращает «43»
-// Проверить, что Get(0) возвращает «23», Get(1) – «43», а Get(-1) и Get(2) – выбрасывают исключение.
-// Добавить (Prepend) элемент «53»
-// Проверить, что длина = 3
-// Проверить, что GetFisrt возвращает «53»
-// Проверить, что GetLast возвращает «43»
-// Проверить, что Get(0) возвращает «53», Get(1) – «23», а Get(-1) и Get(3) – выбрасывают исключение.
-// Проверить, что GetSubsequence(1,1) возвращает последовательность, у которой:
-// длина =1
-// первый и последний элемент – 23
-
-
-// g++ -std=c++17 -g main.cpp -o main && ./main
-
 // Length	        Длина последовательности (количество элементов)
 // IsEmpty	        Признак того, является ли последовательность пустой
-
 // Get	            Получение элемента по индексу.
 // GetFirst         Получить первый элемент последовательности
 // GetLast          Получить последний элемент последовательности
@@ -42,85 +17,101 @@
 // InsertAt	        Вставить элемент в позицию index (существующие элементы сдвигаются вперед на 1).
 // Remove	        Удаляет элемент из последовательности. Если элемента не было, ничего не происходит.
 
+
+// example:
+
+// create array (list)
+// exit 
+// get 4
+// getfirst
+// getlast
+// append 6
+// prepend 8
+// remove 999
+// getsub 1 3
+// insertAt 0 999
+
+void CheckInput() {
+    if (std::cin.fail()) {
+        std::cin.clear();
+        throw std::invalid_argument("Input must be integer!");
+    }
+}
+
+void CheckSeq(Sequence<int>* seq) {
+    if (seq == nullptr) throw std::invalid_argument("Create your sequence first!");
+}
+
 int main () {
-    // ListSequence<int> seq;
-    // seq.Append(0);
-    // seq.Append(1);
-    // seq.Append(2);
-    // seq.Append(3);
-    // seq.Prepend(-1);
-    // seq.InsertAt(0, 999);
-    // seq.InsertAt(2, -999);
-    // std::cout << seq << "\nlen: " << seq.GetLength() << "\n\n" << *seq.GetSubsequence(2, 4) << "\nlen: " << seq.GetSubsequence(2, 4)->GetLength() << "\n" <<std::endl;
-    // seq.Remove(999);
+    std::string action;
+    std::string object;
+    
+    int number;
 
-    ArraySequence<int> seq;
-    // if (seq.GetLength() != 0) {
-    //     // return false;
-    //     std::cout << "1";
-    // }
-    // seq.Append(23);
-    // if (seq.GetLength() != 1) {
-    //     // return false;
-    //     std::cout << "1";
-    // }
-    // if (seq.GetFirst() != 23) {
-    //     // return false;
-    //     std::cout << "1";
-    // }
-    // if (seq.GetLast() != 23) {
-    //     // return false;
-    //     std::cout << "1";
-    // }
-    // if (seq.Get(0) != 23) {
-    //     // return false;
-    //     std::cout << "1";
-    // }
-    // try {
-    //     int a = seq.Get(1);
-    //     std::cout << "1" << a << std::endl;
-    // } catch(std::out_of_range exc) {
-    //     // std::cout << exc.what() << std::endl;
-    // }
-    // try {
-    //     int a = seq.Get(-1);
-    //     std::cout << "1" << a << std::endl;
-    // } catch(std::out_of_range exc) {
-    //     // std::cout << exc.what() << std::endl;
-    // }
-    // seq.Append(43);
-    // if (seq.GetLength() != 2) {
-    //     // return false;
-    //     std::cout << "1" << std::endl;
-    // }
-    // if (seq.GetFirst() != 23) {
-    //     // return false;
-    //     std::cout << "1" << std::endl;
-    // }
+    Sequence<int>* seq = nullptr;
 
-// Добавить (Append) элемент «43»
-// Проверить, что длина = 2
-// Проверить, что GetFisrt возвращает «23»
-// Проверить, что GetLast возвращает «43»
-// Проверить, что Get(0) возвращает «23», Get(1) – «43», а Get(-1) и Get(2) – выбрасывают исключение.
-// Добавить (Prepend) элемент «53»
-// Проверить, что длина = 3
-// Проверить, что GetFisrt возвращает «53»
-// Проверить, что GetLast возвращает «43»
-// Проверить, что Get(0) возвращает «53», Get(1) – «23», а Get(-1) и Get(3) – выбрасывают исключение.
-// Проверить, что GetSubsequence(1,1) возвращает последовательность, у которой:
-// длина =1
-// первый и последний элемент – 23
-
-    seq.Append(1);
-    seq.Append(2);
-    // seq.Append(3);
-    // seq.Append(4);
-    // seq.Append(5);
-    // seq.InsertAt(1, 999);
-    // std::cout << seq[0] << " " << seq[1];
-    std::cout << seq;
-
+    while(true) {
+        try {
+            std::cin >> action;
+            if (action == "exit") {
+                return 0;
+            } else if (action == "create") {
+                std::cin >> object;
+                if (object == "array") {
+                    seq = new ArraySequence<int>;
+                } else if (object == "list") {
+                    seq = new ListSequence<int>;
+                } else throw std::invalid_argument("Invalid Command!");
+            } else if (action == "print") {
+                std::cout << *seq << std::endl;
+            } else if (action == "append") {
+                CheckSeq(seq);
+                std::cin >> number;
+                CheckInput();
+                seq->Append(number);
+            } else if (action == "prepend") {
+                CheckSeq(seq);
+                std::cin >> number;
+                CheckInput();
+                seq->Prepend(number);
+            } else if (action == "remove") {
+                CheckSeq(seq);
+                std::cin >> number;
+                CheckInput();
+                seq->Remove(number);
+            } else if (action == "get") {
+                CheckSeq(seq);
+                std::cin >> number;
+                CheckInput();
+                std::cout << seq->Get(number) << std::endl;
+            } else if (action == "getSub") {
+                CheckSeq(seq);
+                int left, right;
+                std::cin >> left >> right;
+                std::cout << seq->GetSubsequence(left, right) << std::endl;
+            } else if (action == "insertAt") {
+                CheckSeq(seq);
+                int idx;
+                std::cin >> idx >> number;
+                CheckInput();
+                seq->InsertAt(idx, number);
+            } else if (action == "getFirst") {
+                CheckSeq(seq);
+                std::cout << seq->GetFirst() << std::endl;
+            } else if (action == "getLast") {
+                CheckSeq(seq);
+                std::cout << seq->GetLast() << std::endl;
+            } else throw std::invalid_argument("Invalid Command!");
+        } catch (std::invalid_argument err) {
+            std::cout << err.what() << std::endl;
+            std::string str;
+            std::getline(std::cin, str);
+        } catch (std::out_of_range err) {
+            std::cout << err.what() << std::endl;
+            std::string str;
+            std::getline(std::cin, str);
+        }
+    }
 
     return 0;
 }
