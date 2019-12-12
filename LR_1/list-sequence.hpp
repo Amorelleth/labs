@@ -32,16 +32,34 @@ template<class T> class ListSequence : public Sequence<T> {
             this->length--;
         }
 
+        T* GetPointer(int index) override {
+            this->GettingOutOfRangeCheck(index);
+            return &GetNode(index)->data;
+        };
+
     protected:
         void Serialize(std::ostream& os) const override {
-            for (auto node = _head; node != nullptr; node = node->next) {
-                os << *node << (node->next == nullptr ? "" : ",");
+            auto node = _head;
+            for (int i = 0; i < this->length; i++) {
+                os << *node << (i == this->length - 1 ? "" : ",");
+                if (node->next != nullptr) node = node -> next;
             }
         }
 
     public:
         ListSequence() : Sequence<T>() { _head = nullptr; };
-        ListSequence(T d) : Sequence<T>(d) { Append(d); };
+        ListSequence(ListSequence& seq) : Sequence<T>(seq) {
+            auto newSeq = new ListSequence<T>;
+            auto node = seq._head;
+            for (int i = 0; i < seq.length; i++) {
+                this->Append(node->data);
+                if (node->next != nullptr) node = node->next;
+            }
+        };
+        ListSequence(T d) : Sequence<T>(d) { this->Append(d); };
+        ListSequence(T d[], int size) : Sequence<T>(d, size) { 
+            for (int i = 0; i < size; i++) this->Append(d[i]);
+        };
         ~ListSequence() {
             auto current = _head;
             if (current == nullptr) return;
@@ -66,7 +84,7 @@ template<class T> class ListSequence : public Sequence<T> {
 
         void InsertAt(int index, T d) override {
             this->InsertionOutOfRangeCheck(index);
-            auto node = new Node<T>(d);
+            auto node = new Node<T>(d, nullptr);
 
             if (index == 0) {
                 node->next = _head;

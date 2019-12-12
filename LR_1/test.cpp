@@ -1,6 +1,10 @@
 #include <iostream>
+#include <ctime>
+#include <iterator>
+#include <algorithm>
 #include "array-sequence.hpp"
 #include "list-sequence.hpp"
+#include "fill-random.hpp"
 
 void PrintFailed(std::string testName, int expected, int got) {
     std::cout << testName << " test failed EXPECTED " << expected << " GOT " << got << std::endl;
@@ -14,6 +18,7 @@ void PrintFailed(std::string testName, std::string expected, std::string got) {
 void PrintFailed(std::string testName, std::string expected, Sequence<int>* got) {
     std::cout << testName << " test failed EXPECTED " << expected << " GOT " << *got << std::endl;
 }
+bool InOrder(int a, int b) { return a < b; };
 Sequence<int>* CreateSeqFromType(std::string type) {
     if (type == "array") {
         return new ArraySequence<int>;
@@ -264,8 +269,48 @@ bool MainTest(std::string type) {
     return true;
 }
 
+bool QsortTest(std::string type) {
+    int size = 10;
+    int arr[size];
+    int expectedArr[size];
+
+    FillWithRandom(arr, size);
+    std::copy(std::begin(arr), std::end(arr), std::begin(expectedArr));
+    std::sort(expectedArr, std::begin(expectedArr), std::end(expectedArr));
+
+    Sequence<int>* seq = type == "array" ? new ArraySequence<int>(arr, size) : new ArraySequence<int>(arr, size);
+    seq->QSort(InOrder);
+    
+    for (int i = 0; i < size; i++) {
+        if ((*seq)[i] != expectedArr[i]) {
+            PrintFailed("QsortTest failed on element #" + std::to_string(i), expectedArr[i], (*seq)[i]);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool ShellTest(std::string type) {
+    int size = 10;
+    int arr[] = { 75,85,31,41,67,86,16,45,9,42 };
+    int expectedArr[] = { 9,16,31,41,42,45,67,75,85,86 };
+    Sequence<int>* seq = type == "array" ? new ArraySequence<int>(arr, size) : new ArraySequence<int>(arr, size);
+    seq->ShellSort(InOrder);
+    
+    for (int i = 0; i < size; i++) {
+        if ((*seq)[i] != expectedArr[i]) {
+            PrintFailed("ShellTest failed on element #" + std::to_string(i),  expectedArr[i], (*seq)[i]);
+            return false;
+        }
+    }
+
+    return true;
+}
 
 int main() {
+    srand(time(nullptr));
+
     int resArr = 0;
     int resList = 0;
 
@@ -277,7 +322,9 @@ int main() {
     resArr += GetIsEmptyTest("array");
     resArr += GetLengthTest("array");
     resArr += MainTest("array");
-    std::cout << resArr;
+    resArr += QsortTest("array");
+    resArr += ShellTest("array");
+    std::cout << resArr << "/" << "10 PASSED" << std::endl;
 
     resList += AppendAndGetLastTest("list");
     resList += PrependAndGetFirstTest("list");
@@ -287,7 +334,9 @@ int main() {
     resList += GetIsEmptyTest("list");
     resList += GetLengthTest("list");
     resList += MainTest("list");
-    std::cout << resList;
+    resList += QsortTest("list");
+    resList += ShellTest("list");
+    std::cout << resList << "/" << "10 PASSED" << std::endl;
 
     return 0;
 }

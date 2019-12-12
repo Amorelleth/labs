@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 #include "sequence.hpp"
 
 template<class T>
@@ -16,7 +18,14 @@ class ArraySequence : public Sequence<T> {
 
     public:
         ArraySequence() : Sequence<T>() {};
-        ArraySequence(T d) : Sequence<T>() { Append(d); };
+        ArraySequence(T d) : Sequence<T>() { this->Append(d); };
+        ArraySequence(T d[], int size) : Sequence<T>(d, size) { 
+            for (int i = 0; i < size; i++) this->Append(d[i]);
+        };
+        ArraySequence(ArraySequence& seq) : Sequence<T>(seq) {
+            auto newSeq = new ArraySequence<T>;
+            for (int i = 0; i < seq.length; i++) this->Append(seq[i]);
+        };
         ~ArraySequence() { delete items; }
 
         ArraySequence<T>* GetSubsequence(int left, int right) override {
@@ -59,4 +68,9 @@ class ArraySequence : public Sequence<T> {
             this->GettingOutOfRangeCheck(index);
             return items[index];
         }
+
+        T* GetPointer(int index) override {
+            this->GettingOutOfRangeCheck(index);
+            return &items[index];
+        };
 };
